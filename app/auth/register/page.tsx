@@ -9,7 +9,7 @@ export default function RegisterPage() {
 
         <div className="auth-form">
           <h2>Create an Account</h2>
-          <p>Already have an account? <a href="/login">Login</a></p>
+          <p>Already have an account? <a href="/auth/login">Login</a></p>
           <RegisterForm />
         </div>
       </div>

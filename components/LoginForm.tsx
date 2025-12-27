@@ -12,3 +12,6 @@ export default function LoginForm() {
     </form>
   );
 }
+
+// components/LoginForm.tsx
+

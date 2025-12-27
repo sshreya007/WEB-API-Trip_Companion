@@ -14,7 +14,7 @@ export default function Navbar() {
       </ul>
 
       
-      <Link href="/login" className="login-btn">
+      <Link href="/auth/login" className="login-btn">
         Login / Sign Up
       </Link>
     </nav>
