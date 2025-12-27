@@ -13,6 +13,7 @@ export default function Navbar() {
         <li>Contact us</li>
       </ul>
 
+      
       <Link href="/login" className="login-btn">
         Login / Sign Up
       </Link>
