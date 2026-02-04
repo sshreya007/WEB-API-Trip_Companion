@@ -1,4 +1,4 @@
-import { RegisterFormData, LoginFormData } from '@/types/auth.type';
+import { RegisterFormData, LoginFormData } from '@/types/auth.types';
 
 export const validateRegisterForm = (data: RegisterFormData): string | null => {
   if (!data.firstName.trim()) return 'First name is required';

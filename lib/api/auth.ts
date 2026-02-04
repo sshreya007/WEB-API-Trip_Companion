@@ -1,6 +1,6 @@
 import api from './axios';
 import { API_ENDPOINTS } from './endpoints';
-import { RegisterFormData, LoginFormData, AuthResponse, User } from '@/types/auth.type';
+import { RegisterFormData, LoginFormData, AuthResponse, User } from '@/types/auth.types';
 
 // Define API response structure
 interface APIResponse {
