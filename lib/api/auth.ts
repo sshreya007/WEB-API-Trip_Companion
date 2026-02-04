@@ -1,39 +1,56 @@
-//API Layer
-//Call api from backend
+import api from './axios';
+import { API_ENDPOINTS } from './endpoints';
+import { RegisterFormData, LoginFormData, AuthResponse, User } from '@/types/auth.type';
 
-import axios from "./axios";//IMPORTANT: "./axios"not "axios"
-import {API}from "./endpoints";
-
-export const register = async(registerData:any)=>{
-    try{
-        const response=await axios.post(
-            API.AUTH.REGISTER, //API path '/api/auth/register'
-            registerData //body data
-        );
-        return response.data; //what the backend-controller rreturns
-    }catch(err:Error | any){
-        // 4xx or 5xx counts as exception
-        throw new Error(
-            err.response?.data?.message // message from backend
-            || err.message //general error message
-            || "Registration failed" //fallback message
-        );
-    }
+// Define API response structure
+interface APIResponse {
+  success: boolean;
+  message: string;
+  data: {
+    token: string;
+    user: User;
+  };
 }
 
-export const login =async (loginData: any)=>{
-    try{
-        const response=await axios.post(
-            API.AUTH.LOGIN, //API path '/api/auth/register'
-           loginData //body data
-        );
-        return response.data; //what the backend-controller rreturns
-    }catch(err:Error | any){
-        // 4xx or 5xx counts as exception
-        throw new Error(
-            err.response?.data?.message // message from backend
-            || err.message //general error message
-            || "Login failed" //fallback message
-        );
+export const authAPI = {
+  // Register
+  register: async (data: Omit<RegisterFormData, 'confirmPassword'>): Promise<AuthResponse> => {
+    try {
+      const response = await api.post<APIResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
+      return {
+        success: true,
+        message: response.data.message,
+        data: response.data.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Registration failed',
+      };
     }
-}
+  },
+
+  // Login
+  login: async (data: LoginFormData): Promise<AuthResponse> => {
+    try {
+      const response = await api.post<APIResponse>(API_ENDPOINTS.AUTH.LOGIN, data);
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Login failed',
+      };
+    }
+  },
+
+  // Logout
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+  },
+};
