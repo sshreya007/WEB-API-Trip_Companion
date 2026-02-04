@@ -8,7 +8,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Add token to requests if it exists
+// Add token to requests
 api.interceptors.request.use(
   (config: any) => {
     if (typeof window !== 'undefined') {
