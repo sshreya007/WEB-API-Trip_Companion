@@ -150,14 +150,29 @@ export default function RegisterForm() {
         required
       />
 
-      <label className="checkbox">
-        <input 
-          type="checkbox" 
-          checked={agreedToTerms}
-          onChange={(e) => setAgreedToTerms(e.target.checked)}
-        /> 
-        I agree to the Terms & Conditions
-      </label>
+      <label 
+  className="checkbox"
+  style={{ 
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: '10px',
+    marginTop: '15px',
+    marginBottom: '15px'
+  }}
+>
+  <input 
+    type="checkbox" 
+    checked={agreedToTerms}
+    onChange={(e) => setAgreedToTerms(e.target.checked)}
+    style={{ 
+      width: '18px', 
+      height: '18px',
+      margin: '0',
+      cursor: 'pointer'
+    }}
+  /> 
+  <span>I agree to the Terms & Conditions</span>
+</label>
 
       <button type="submit" disabled={loading}>
         {loading ? 'Creating Account...' : 'Create Account'}
