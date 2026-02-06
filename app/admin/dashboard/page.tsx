@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 
@@ -9,24 +9,16 @@ export default function AdminDashboardPage() {
   const { user, loading, logout } = useAuth();
 
   useEffect(() => {
-    // Redirect if not logged in
     if (!loading && !user) {
       router.push('/auth/login');
     }
-    
-    // Redirect if not admin
     if (!loading && user && user.role !== 'admin') {
       router.push('/auth/dashboard');
     }
   }, [user, loading, router]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user || user.role !== 'admin') {
-    return null;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (!user || user.role !== 'admin') return null;
 
   const handleLogout = () => {
     logout();
@@ -52,9 +44,22 @@ export default function AdminDashboardPage() {
       <div style={{ marginTop: '20px' }}>
         <h3>Admin Features:</h3>
         <ul>
-          <li>Manage Users</li>
-          <li>View Analytics</li>
-          <li>System Settings</li>
+          <li>
+            <button
+              onClick={() => router.push('/admin/users')}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                marginTop: '10px'
+              }}
+            >
+              👥 Manage Users
+            </button>
+          </li>
         </ul>
       </div>
 
