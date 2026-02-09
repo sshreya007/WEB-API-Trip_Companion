@@ -1,0 +1,79 @@
+export interface Package {
+  _id: string;
+  title: string;
+  destination: string;
+  country: string;
+  description: string;
+  shortDescription: string;
+  duration: {
+    days: number;
+    nights: number;
+  };
+  price: {
+    amount: number;
+    currency: string;
+    originalPrice?: number;
+  };
+  images: string[];
+  coverImage: string;
+  category: 'beach' | 'adventure' | 'cultural' | 'luxury' | 'budget' | 'family' | 'honeymoon' | 'group';
+  includes: string[];
+  excludes: string[];
+  itinerary: Array<{
+    day: number;
+    title: string;
+    description: string;
+    activities: string[];
+    meals: string[];
+  }>;
+  accommodation: {
+    hotelName: string;
+    hotelRating: number;
+    roomType: string;
+  };
+  highlights: string[];
+  availability: {
+    startDate: Date;
+    endDate: Date;
+    maxBookings: number;
+    bookedCount: number;
+  };
+  rating: {
+    average: number;
+    count: number;
+  };
+  tags: string[];
+  isActive: boolean;
+  featured: boolean;
+  cancellationPolicy: string;
+  termsAndConditions: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PackageFilter {
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minDays?: number;
+  maxDays?: number;
+  destination?: string;
+  country?: string;
+  featured?: boolean;
+  search?: string;
+  sortBy?: 'price' | 'rating' | 'duration' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
+export interface PackagesResponse {
+  success: boolean;
+  data: Package[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
