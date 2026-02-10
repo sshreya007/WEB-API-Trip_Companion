@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { adminAPI } from '@/lib/api/admin';
+import { packagesAPI } from '@/lib/api/packages';
+import { adminBookingsAPI } from '@/lib/api/admin-bookings';
 import '@/styles/admin.css';
 
 export default function AdminDashboardPage() {
@@ -13,6 +15,12 @@ export default function AdminDashboardPage() {
     totalUsers: 0,
     totalAdmins: 0,
     newUsers: 0,
+    totalPackages: 0,
+    activePackages: 0,
+    totalBookings: 0,
+    pendingBookings: 0,
+    confirmedBookings: 0,
+    revenue: 0
   });
 
   useEffect(() => {
@@ -28,19 +36,47 @@ export default function AdminDashboardPage() {
   }, [user, loading, router]);
 
   const fetchStats = async () => {
-    const result = await adminAPI.getAllUsers();
-    if (result.success && result.data) {
-      const users = result.data;
-      setStats({
-        totalUsers: users.filter(u => u.role === 'user').length,
-        totalAdmins: users.filter(u => u.role === 'admin').length,
-        newUsers: users.filter(u => {
+    try {
+      // Fetch users
+      const usersResult = await adminAPI.getAllUsers();
+      if (usersResult.success && usersResult.data) {
+        const users = usersResult.data;
+        const totalUsers = users.filter(u => u.role === 'user').length;
+        const totalAdmins = users.filter(u => u.role === 'admin').length;
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const newUsers = users.filter(u => {
           const createdDate = new Date(u.createdAt);
-          const weekAgo = new Date();
-          weekAgo.setDate(weekAgo.getDate() - 7);
           return createdDate > weekAgo;
-        }).length,
-      });
+        }).length;
+
+        setStats(prev => ({ ...prev, totalUsers, totalAdmins, newUsers }));
+      }
+
+      // Fetch packages
+      const packagesResult = await packagesAPI.getAllPackages({ limit: 1000 });
+      if (packagesResult.success) {
+        const packages = packagesResult.data;
+        const totalPackages = packages.length;
+        const activePackages = packages.filter(p => p.isActive).length;
+        setStats(prev => ({ ...prev, totalPackages, activePackages }));
+      }
+
+      // Fetch bookings
+      const bookingsResult = await adminBookingsAPI.getAllBookings({ limit: 1000 });
+      if (bookingsResult.success) {
+        const bookings = bookingsResult.data;
+        const totalBookings = bookings.length;
+        const pendingBookings = bookings.filter(b => b.status === 'pending').length;
+        const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
+        const revenue = bookings
+          .filter(b => b.paymentStatus === 'paid')
+          .reduce((sum, b) => sum + b.totalPrice, 0);
+        
+        setStats(prev => ({ ...prev, totalBookings, pendingBookings, confirmedBookings, revenue }));
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
     }
   };
 
@@ -78,15 +114,21 @@ export default function AdminDashboardPage() {
             </button>
           </li>
           <li className="admin-menu-item">
-            <button className="admin-menu-link">
-              <span className="admin-menu-icon">🗺️</span>
-              <span>Trips</span>
+            <button 
+              className="admin-menu-link"
+              onClick={() => router.push('/admin/packages')}
+            >
+              <span className="admin-menu-icon">📦</span>
+              <span>Package Management</span>
             </button>
           </li>
           <li className="admin-menu-item">
-            <button className="admin-menu-link">
-              <span className="admin-menu-icon">📸</span>
-              <span>Media</span>
+            <button 
+              className="admin-menu-link"
+              onClick={() => router.push('/admin/bookings')}
+            >
+              <span className="admin-menu-icon">📋</span>
+              <span>Booking Management</span>
             </button>
           </li>
           <li className="admin-menu-item">
@@ -121,17 +163,16 @@ export default function AdminDashboardPage() {
 
         {/* Welcome Section */}
         <div className="welcome-section">
-          <div className="welcome-avatar">
-            👑
-          </div>
+          <div className="welcome-avatar">👑</div>
           <div className="welcome-info">
             <h2>Welcome back, {user.firstName}!</h2>
-            <p>Here's what's happening with your travel community today</p>
+            <p>Here's an overview of your travel management system</p>
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Grid */}
         <div className="admin-stats">
+          {/* Users Stats */}
           <div className="stat-card">
             <div className="stat-icon blue">👥</div>
             <div className="stat-label">Total Users</div>
@@ -139,21 +180,45 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon green">👑</div>
-            <div className="stat-label">Administrators</div>
-            <h3 className="stat-value">{stats.totalAdmins}</h3>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon orange">🆕</div>
+            <div className="stat-icon green">🆕</div>
             <div className="stat-label">New This Week</div>
             <h3 className="stat-value">{stats.newUsers}</h3>
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon red">✈️</div>
-            <div className="stat-label">Active Trips</div>
-            <h3 className="stat-value">0</h3>
+            <div className="stat-icon orange">📦</div>
+            <div className="stat-label">Total Packages</div>
+            <h3 className="stat-value">{stats.totalPackages}</h3>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon green">✅</div>
+            <div className="stat-label">Active Packages</div>
+            <h3 className="stat-value">{stats.activePackages}</h3>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon blue">📋</div>
+            <div className="stat-label">Total Bookings</div>
+            <h3 className="stat-value">{stats.totalBookings}</h3>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon orange">⏳</div>
+            <div className="stat-label">Pending Bookings</div>
+            <h3 className="stat-value">{stats.pendingBookings}</h3>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon green">✔️</div>
+            <div className="stat-label">Confirmed Bookings</div>
+            <h3 className="stat-value">{stats.confirmedBookings}</h3>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon green">💰</div>
+            <div className="stat-label">Total Revenue</div>
+            <h3 className="stat-value">${stats.revenue.toLocaleString()}</h3>
           </div>
         </div>
 
@@ -171,28 +236,34 @@ export default function AdminDashboardPage() {
           <div className="quick-actions">
             <button 
               className="action-button primary"
-              onClick={() => router.push('/admin/users/create')}
+              onClick={() => router.push('/admin/packages/create')}
             >
               <span>➕</span>
-              <span>Add New User</span>
+              <span>Add New Package</span>
+            </button>
+
+            <button 
+              className="action-button secondary"
+              onClick={() => router.push('/admin/packages')}
+            >
+              <span>📦</span>
+              <span>Manage Packages</span>
+            </button>
+
+            <button 
+              className="action-button secondary"
+              onClick={() => router.push('/admin/bookings')}
+            >
+              <span>📋</span>
+              <span>View All Bookings</span>
             </button>
 
             <button 
               className="action-button secondary"
               onClick={() => router.push('/admin/users')}
             >
-              <span>📋</span>
-              <span>View All Users</span>
-            </button>
-
-            <button className="action-button secondary">
-              <span>📊</span>
-              <span>View Reports</span>
-            </button>
-
-            <button className="action-button secondary">
-              <span>⚙️</span>
-              <span>System Settings</span>
+              <span>👥</span>
+              <span>Manage Users</span>
             </button>
           </div>
         </div>
@@ -205,11 +276,105 @@ export default function AdminDashboardPage() {
             marginBottom: '20px',
             color: '#111827'
           }}>
-            Recent Activity
+            System Overview
           </h3>
-          <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px' }}>
-            No recent activity to display
-          </p>
+          <div style={{ display: 'grid', gap: '16px' }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              padding: '16px',
+              background: 'rgba(13, 148, 136, 0.05)',
+              borderRadius: '12px'
+            }}>
+              <div>
+                <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 4px 0' }}>
+                  User Accounts
+                </p>
+                <p style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                  {stats.totalUsers} Users, {stats.totalAdmins} Admins
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/admin/users')}
+                style={{
+                  padding: '10px 20px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Manage →
+              </button>
+            </div>
+
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              padding: '16px',
+              background: 'rgba(13, 148, 136, 0.05)',
+              borderRadius: '12px'
+            }}>
+              <div>
+                <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 4px 0' }}>
+                  Holiday Packages
+                </p>
+                <p style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                  {stats.activePackages} Active / {stats.totalPackages} Total
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/admin/packages')}
+                style={{
+                  padding: '10px 20px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Manage →
+              </button>
+            </div>
+
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              padding: '16px',
+              background: 'rgba(13, 148, 136, 0.05)',
+              borderRadius: '12px'
+            }}>
+              <div>
+                <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 4px 0' }}>
+                  Bookings Status
+                </p>
+                <p style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                  {stats.pendingBookings} Pending, {stats.confirmedBookings} Confirmed
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/admin/bookings')}
+                style={{
+                  padding: '10px 20px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Manage →
+              </button>
+            </div>
+          </div>
         </div>
       </main>
     </div>
