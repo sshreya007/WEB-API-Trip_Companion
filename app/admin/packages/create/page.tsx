@@ -36,17 +36,10 @@ export default function CreatePackagePage() {
   });
 
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [includes, setIncludes] = useState<string[]>(['']);
-  const [excludes, setExcludes] = useState<string[]>(['']);
-  const [highlights, setHighlights] = useState<string[]>(['']);
-  const [tags, setTags] = useState<string[]>(['']);
-  const [itinerary, setItinerary] = useState<Array<{
-    day: number;
-    title: string;
-    description: string;
-    activities: string[];
-    meals: string[];
-  }>>([]);
+  const [includes, setIncludes] = useState<string[]>(['Flight', 'Hotel', 'Breakfast']);
+  const [excludes, setExcludes] = useState<string[]>(['Travel Insurance', 'Personal Expenses']);
+  const [highlights, setHighlights] = useState<string[]>(['Beautiful beaches', 'Local cuisine', 'Cultural sites']);
+  const [tags, setTags] = useState<string[]>(['relaxing', 'scenic']);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -88,7 +81,9 @@ export default function CreatePackagePage() {
     setArray: React.Dispatch<React.SetStateAction<string[]>>, 
     index: number
   ) => {
-    setArray(array.filter((_, i) => i !== index));
+    if (array.length > 1) {
+      setArray(array.filter((_, i) => i !== index));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -155,11 +150,6 @@ export default function CreatePackagePage() {
       tags.filter(t => t.trim()).forEach(item => {
         data.append('tags[]', item);
       });
-      
-      // Itinerary
-      if (itinerary.length > 0) {
-        data.append('itinerary', JSON.stringify(itinerary));
-      }
       
       // Other
       data.append('featured', formData.featured.toString());
@@ -294,6 +284,7 @@ export default function CreatePackagePage() {
                   value={formData.title}
                   onChange={handleChange}
                   required
+                  placeholder="e.g., Bali Beach Paradise"
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -402,14 +393,14 @@ export default function CreatePackagePage() {
                     borderRadius: '10px'
                   }}
                 >
-                  <option value="beach">Beach</option>
-                  <option value="adventure">Adventure</option>
-                  <option value="cultural">Cultural</option>
-                  <option value="luxury">Luxury</option>
-                  <option value="budget">Budget</option>
-                  <option value="family">Family</option>
-                  <option value="honeymoon">Honeymoon</option>
-                  <option value="group">Group</option>
+                  <option value="beach">🏖️ Beach</option>
+                  <option value="adventure">🏔️ Adventure</option>
+                  <option value="cultural">🏛️ Cultural</option>
+                  <option value="luxury">💎 Luxury</option>
+                  <option value="budget">💰 Budget</option>
+                  <option value="family">👨‍👩‍👧‍👦 Family</option>
+                  <option value="honeymoon">💑 Honeymoon</option>
+                  <option value="group">👥 Group</option>
                 </select>
               </div>
             </div>
@@ -528,8 +519,405 @@ export default function CreatePackagePage() {
               )}
             </div>
 
-            {/* Continued in next part... */}
-            
+            {/* What's Included */}
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px', marginTop: '32px' }}>
+              What's Included
+            </h3>
+
+            <div style={{ marginBottom: '32px' }}>
+              {includes.map((item, index) => (
+                <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <input
+                    type="text"
+                    value={item}
+                    onChange={(e) => handleArrayChange(includes, setIncludes, index, e.target.value)}
+                    placeholder="e.g., Flight tickets"
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '10px'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeArrayItem(includes, setIncludes, index)}
+                    style={{
+                      padding: '12px 20px',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem(includes, setIncludes)}
+                style={{
+                  padding: '10px 20px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer'
+                }}
+              >
+                + Add Item
+              </button>
+            </div>
+
+            {/* What's Excluded */}
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px', marginTop: '32px' }}>
+              What's Excluded
+            </h3>
+
+            <div style={{ marginBottom: '32px' }}>
+              {excludes.map((item, index) => (
+                <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <input
+                    type="text"
+                    value={item}
+                    onChange={(e) => handleArrayChange(excludes, setExcludes, index, e.target.value)}
+                    placeholder="e.g., Travel insurance"
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '10px'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeArrayItem(excludes, setExcludes, index)}
+                    style={{
+                      padding: '12px 20px',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem(excludes, setExcludes)}
+                style={{
+                  padding: '10px 20px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer'
+                }}
+              >
+                + Add Item
+              </button>
+            </div>
+
+            {/* Highlights */}
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px', marginTop: '32px' }}>
+              Package Highlights
+            </h3>
+
+            <div style={{ marginBottom: '32px' }}>
+              {highlights.map((item, index) => (
+                <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <input
+                    type="text"
+                    value={item}
+                    onChange={(e) => handleArrayChange(highlights, setHighlights, index, e.target.value)}
+                    placeholder="e.g., Beautiful sunset views"
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '10px'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeArrayItem(highlights, setHighlights, index)}
+                    style={{
+                      padding: '12px 20px',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem(highlights, setHighlights)}
+                style={{
+                  padding: '10px 20px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer'
+                }}
+              >
+                + Add Highlight
+              </button>
+            </div>
+
+            {/* Accommodation */}
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px', marginTop: '32px' }}>
+              Accommodation Details
+            </h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>
+                  Hotel Name
+                </label>
+                <input
+                  type="text"
+                  name="hotelName"
+                  value={formData.hotelName}
+                  onChange={handleChange}
+                  placeholder="e.g., Grand Hyatt Bali"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>
+                  Hotel Rating
+                </label>
+                <select
+                  name="hotelRating"
+                  value={formData.hotelRating}
+                  onChange={handleChange}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px'
+                  }}
+                >
+                  <option value="1">1 Star</option>
+                  <option value="2">2 Stars</option>
+                  <option value="3">3 Stars</option>
+                  <option value="4">4 Stars</option>
+                  <option value="5">5 Stars</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>
+                  Room Type
+                </label>
+                <input
+                  type="text"
+                  name="roomType"
+                  value={formData.roomType}
+                  onChange={handleChange}
+                  placeholder="e.g., Deluxe Room"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Availability */}
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px', marginTop: '32px' }}>
+              Availability & Booking
+            </h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>
+                  Start Date *
+                </label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>
+                  End Date *
+                </label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>
+                  Max Bookings
+                </label>
+                <input
+                  type="number"
+                  name="maxBookings"
+                  value={formData.maxBookings}
+                  onChange={handleChange}
+                  min="1"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Tags */}
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px', marginTop: '32px' }}>
+              Tags
+            </h3>
+
+            <div style={{ marginBottom: '32px' }}>
+              {tags.map((item, index) => (
+                <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <input
+                    type="text"
+                    value={item}
+                    onChange={(e) => handleArrayChange(tags, setTags, index, e.target.value)}
+                    placeholder="e.g., romantic, adventure"
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '10px'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeArrayItem(tags, setTags, index)}
+                    style={{
+                      padding: '12px 20px',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem(tags, setTags)}
+                style={{
+                  padding: '10px 20px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer'
+                }}
+              >
+                + Add Tag
+              </button>
+            </div>
+
+            {/* Policies */}
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px', marginTop: '32px' }}>
+              Policies & Terms
+            </h3>
+
+            <div style={{ display: 'grid', gap: '20px', marginBottom: '32px' }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>
+                  Cancellation Policy
+                </label>
+                <textarea
+                  name="cancellationPolicy"
+                  value={formData.cancellationPolicy}
+                  onChange={handleChange}
+                  rows={4}
+                  placeholder="Describe the cancellation policy..."
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>
+                  Terms & Conditions
+                </label>
+                <textarea
+                  name="termsAndConditions"
+                  value={formData.termsAndConditions}
+                  onChange={handleChange}
+                  rows={4}
+                  placeholder="List terms and conditions..."
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Featured */}
+            <div style={{ marginBottom: '32px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  name="featured"
+                  checked={formData.featured}
+                  onChange={handleChange}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                />
+                <span style={{ fontWeight: '600' }}>Mark as Featured Package</span>
+              </label>
+            </div>
+
             {/* Submit Button */}
             <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
               <button
@@ -538,21 +926,22 @@ export default function CreatePackagePage() {
                 style={{
                   flex: 1,
                   padding: '14px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: loading ? '#94a3b8' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '12px',
                   fontWeight: '700',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
                   fontSize: '16px'
                 }}
               >
-                {loading ? 'Creating Package...' : 'Create Package'}
+                {loading ? 'Creating Package...' : '✨ Create Package'}
               </button>
 
               <button
                 type="button"
                 onClick={() => router.push('/admin/packages')}
+                disabled={loading}
                 style={{
                   flex: 1,
                   padding: '14px',
@@ -561,7 +950,7 @@ export default function CreatePackagePage() {
                   border: '2px solid #e5e7eb',
                   borderRadius: '12px',
                   fontWeight: '700',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
                   fontSize: '16px'
                 }}
               >
