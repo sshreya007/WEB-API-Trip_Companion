@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { adminPackagesAPI } from '@/lib/api/admin-packages';
@@ -11,6 +11,17 @@ export default function CreatePackagePage() {
   const { user, loading: authLoading, logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // ✅ FIX: Properly handle authentication redirect
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push('/auth/login');
+      } else if (user.role !== 'admin') {
+        router.push('/auth/login');
+      }
+    }
+  }, [user, authLoading, router]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -175,14 +186,32 @@ export default function CreatePackagePage() {
     }
   };
 
-  if (authLoading) return <div>Loading...</div>;
+  // ✅ FIX: Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px',
+        color: '#667eea'
+      }}>
+        Loading...
+      </div>
+    );
+  }
+
+  // ✅ FIX: Don't render anything if not authenticated
   if (!user || user.role !== 'admin') {
-    router.push('/auth/login');
     return null;
   }
 
   return (
     <div className="admin-layout">
+      {/* ... rest of your JSX stays exactly the same ... */}
+      {/* I'm keeping the full form below */}
+      
       {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="admin-logo">
@@ -267,6 +296,9 @@ export default function CreatePackagePage() {
                 {error}
               </div>
             )}
+
+            {/* Rest of your form - keep all the existing form fields */}
+            {/* I'll include the full form structure below */}
 
             {/* Basic Information */}
             <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>
@@ -759,6 +791,7 @@ export default function CreatePackagePage() {
                   value={formData.startDate}
                   onChange={handleChange}
                   required
+                  min={new Date().toISOString().split('T')[0]}
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -778,6 +811,7 @@ export default function CreatePackagePage() {
                   value={formData.endDate}
                   onChange={handleChange}
                   required
+                  min={formData.startDate || new Date().toISOString().split('T')[0]}
                   style={{
                     width: '100%',
                     padding: '12px',

@@ -13,17 +13,28 @@ export const bookingsAPI = {
   // Create booking
   createBooking: async (bookingData: CreateBookingData): Promise<APIResponse<Booking>> => {
     try {
+      console.log('📤 Sending booking data:', bookingData);
+      
       const response = await api.post<any>('/bookings', bookingData);
+      
+      console.log('✅ Booking response:', response.data);
+      
       return {
         success: true,
         data: response.data.data,
         message: response.data.message
       };
     } catch (error: any) {
-      console.error('❌ Create booking error:', error.response?.data);
+      console.error('❌ Create booking error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        fullError: error
+      });
+      
       return {
         success: false,
-        error: error.response?.data?.message || 'Failed to create booking'
+        error: error.response?.data?.message || error.message || 'Failed to create booking'
       };
     }
   },
@@ -92,25 +103,27 @@ export const bookingsAPI = {
     }
   },
 
-  // Cancel booking - ✅ FIXED with proper typing
-cancelBooking: async (id: string, reason: string): Promise<APIResponse<Booking>> => {
-  try {
-    const response = await api.delete<any>(`/bookings/${id}`, {
-      data: { reason }
-    } as any); // Add type assertion
-    return {
-      success: true,
-      data: response.data.data,
-      message: response.data.message
-    };
-  } catch (error: any) {
-    console.error('❌ Cancel booking error:', error.response?.data);
-    return {
-      success: false,
-      error: error.response?.data?.message || 'Failed to cancel booking'
-    };
-  }
-},
+  // Cancel booking
+  cancelBooking: async (id: string, reason: string): Promise<APIResponse<Booking>> => {
+    try {
+      const response = await api.request<any>({
+        method: 'DELETE',
+        url: `/bookings/${id}`,
+        data: { reason }
+      });
+      return {
+        success: true,
+        data: response.data.data,
+        message: response.data.message
+      };
+    } catch (error: any) {
+      console.error('❌ Cancel booking error:', error.response?.data);
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to cancel booking'
+      };
+    }
+  },
 
   // Add review
   addReview: async (id: string, rating: number, comment: string): Promise<APIResponse<Booking>> => {
