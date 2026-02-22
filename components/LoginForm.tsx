@@ -23,6 +23,7 @@ import { authAPI } from '@/lib/api/auth';
 import { validateLoginForm } from '@/lib/utils/validation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoginFormData } from '@/types/auth.types';
+import Link from 'next/link';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -106,6 +107,29 @@ export default function LoginForm() {
         onChange={handleChange}
         required
       />
+
+      {/*Forgot Password Link */}
+      <div style={{ 
+        textAlign: 'right', 
+        marginTop: '8px' 
+      }}>
+        <Link 
+          href="/auth/forgot-password"
+          style={{ 
+            fontSize: '14px', 
+            color: '#0d9488', 
+            textDecoration: 'none',
+            fontWeight: '600',
+            transition: 'color 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#06b6d4'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#0d9488'}
+        >
+          Forgot Password?
+        </Link>
+      </div>
+
+      
 
       <button type="submit" disabled={loading}>
         {loading ? 'Logging in...' : 'Login'}
