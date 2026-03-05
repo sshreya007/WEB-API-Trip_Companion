@@ -123,7 +123,7 @@ export default function LoginForm() {
             transition: 'color 0.2s'
           }}
           onMouseEnter={(e) => e.currentTarget.style.color = '#06b6d4'}
-          onMouseLeave={(e) => e.currentTarget.style.color = '#0d9488'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#0ba9dd'}
         >
           Forgot Password?
         </Link>
